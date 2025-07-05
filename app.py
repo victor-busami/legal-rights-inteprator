@@ -8,9 +8,13 @@ from models.document_processor import process_document
 from models.translator import translate_text, detect_language
 from models.feedback import save_feedback, get_feedback_stats
 from models.legal_database import search_legal_database
+from models.chatbot import LegalChatbot
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'  # For session management
+
+# Global dictionary to store chatbot instances
+chatbot_instances = {}
 
 # Configure upload folder
 UPLOAD_FOLDER = 'uploads'
@@ -65,6 +69,45 @@ def index():
                              database_results=database_results,
                              language=language)
     return render_template('index.html')
+
+@app.route('/chatbot')
+def chatbot():
+    """Chatbot interface"""
+    return render_template('chatbot.html')
+
+@app.route('/chat', methods=['POST'])
+def chat():
+    """Handle chatbot conversations"""
+    data = request.get_json()
+    message = data.get('message', '')
+    session_id = data.get('session_id', 'default')
+    
+    # Initialize chatbot if not exists
+    if session_id not in chatbot_instances:
+        chatbot_instances[session_id] = LegalChatbot()
+    
+    chatbot = chatbot_instances[session_id]
+    
+    # Get response from chatbot
+    response = chatbot.get_response(message, session_id)
+    
+    return jsonify({
+        'response': response['message'],
+        'suggestions': response.get('suggestions', []),
+        'session_id': session_id
+    })
+
+@app.route('/clear-chat', methods=['POST'])
+def clear_chat():
+    """Clear chatbot conversation"""
+    data = request.get_json()
+    session_id = data.get('session_id', 'default')
+    
+    if session_id in chatbot_instances:
+        chatbot_instances[session_id].clear_conversation(session_id)
+        del chatbot_instances[session_id]
+    
+    return jsonify({'success': True})
 
 @app.route('/upload', methods=['POST'])
 def upload_document():

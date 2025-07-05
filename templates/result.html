@@ -1,10 +1,10 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <h2>Legal Rights Interpretation</h2>
+    <h2>Legal Rights & Action Plan</h2>
     
     <div class="input-section">
-        <h3>Your Input:</h3>
+        <h3>Your Question:</h3>
         <div class="user-input">{{ user_input }}</div>
         {% if language != 'en' %}
         <p class="language-note">Translated from {{ language|upper }}</p>
@@ -26,13 +26,13 @@
     </div>
     
     <div class="interpretation-section">
-        <h3>Your Legal Rights:</h3>
-        <div class="answer-box">{{ answer }}</div>
+        <h3>Your Legal Rights & Action Plan:</h3>
+        <div class="answer-box">{{ answer|safe }}</div>
     </div>
 
     {% if database_results and database_results.statutes %}
     <div class="database-section">
-        <h3>Relevant Legal Statutes:</h3>
+        <h3>📚 Relevant Legal Statutes:</h3>
         <div class="statutes-list">
             {% for statute in database_results.statutes %}
             <div class="statute-item">
@@ -48,7 +48,7 @@
 
     {% if database_results and database_results.cases %}
     <div class="cases-section">
-        <h3>Related Legal Cases:</h3>
+        <h3>⚖️ Related Legal Cases:</h3>
         <div class="cases-list">
             {% for case in database_results.cases %}
             <div class="case-item">
@@ -62,7 +62,7 @@
     {% endif %}
     
     <div class="references-section">
-        <h3>Relevant Legal References:</h3>
+        <h3>📖 Additional Legal References:</h3>
         <ul class="references-list">
             {% for reference in legal_references %}
             <li>{{ reference }}</li>
@@ -89,7 +89,7 @@
     </div>
     
     <div class="disclaimer">
-        <p><strong>Disclaimer:</strong> This interpretation is for informational purposes only and should not be considered legal advice. Please consult with a qualified attorney for specific legal guidance.</p>
+        <p><strong>⚠️ Important Disclaimer:</strong> This information is for educational purposes only and should not be considered legal advice. Laws vary by jurisdiction and change over time. Please consult with a qualified attorney for specific legal advice tailored to your situation.</p>
     </div>
     
     <div class="action-buttons">

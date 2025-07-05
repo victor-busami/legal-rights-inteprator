@@ -24,6 +24,46 @@ main {
 .input-section {
     margin-bottom: 2em;
 }
+
+.chatbot-link {
+    text-align: center;
+    margin-bottom: 2em;
+    padding: 1.5em;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 10px;
+    color: white;
+}
+
+.chatbot-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    padding: 15px 25px;
+    border-radius: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.chatbot-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.chatbot-btn span {
+    font-size: 24px;
+}
+
+.chatbot-link p {
+    margin-top: 10px;
+    opacity: 0.9;
+    font-size: 14px;
+}
 .language-selector {
     margin-bottom: 1em;
 }
