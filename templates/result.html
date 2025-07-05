@@ -6,6 +6,9 @@
     <div class="input-section">
         <h3>Your Input:</h3>
         <div class="user-input">{{ user_input }}</div>
+        {% if language != 'en' %}
+        <p class="language-note">Translated from {{ language|upper }}</p>
+        {% endif %}
     </div>
     
     <div class="analysis-section">
@@ -26,6 +29,37 @@
         <h3>Your Legal Rights:</h3>
         <div class="answer-box">{{ answer }}</div>
     </div>
+
+    {% if database_results and database_results.statutes %}
+    <div class="database-section">
+        <h3>Relevant Legal Statutes:</h3>
+        <div class="statutes-list">
+            {% for statute in database_results.statutes %}
+            <div class="statute-item">
+                <h4>{{ statute.title }}</h4>
+                <p class="statute-description">{{ statute.description }}</p>
+                <p class="statute-section"><strong>Section:</strong> {{ statute.section }}</p>
+                <p class="relevance-score">Relevance: {{ "%.0f"|format(statute.relevance_score * 100) }}%</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if database_results and database_results.cases %}
+    <div class="cases-section">
+        <h3>Related Legal Cases:</h3>
+        <div class="cases-list">
+            {% for case in database_results.cases %}
+            <div class="case-item">
+                <h4>{{ case.title }} ({{ case.year }})</h4>
+                <p class="case-description">{{ case.description }}</p>
+                <p class="case-citation"><strong>Citation:</strong> {{ case.citation }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
     
     <div class="references-section">
         <h3>Relevant Legal References:</h3>
@@ -35,10 +69,101 @@
             {% endfor %}
         </ul>
     </div>
+
+    <!-- Feedback Section -->
+    <div class="feedback-section">
+        <h3>Was this helpful?</h3>
+        <div class="feedback-form">
+            <div class="rating-buttons">
+                <button class="rating-btn" data-rating="1">😞</button>
+                <button class="rating-btn" data-rating="2">😐</button>
+                <button class="rating-btn" data-rating="3">🙂</button>
+                <button class="rating-btn" data-rating="4">😊</button>
+                <button class="rating-btn" data-rating="5">😍</button>
+            </div>
+            <div class="feedback-textarea" style="display: none;">
+                <textarea id="feedback-text" placeholder="Tell us how we can improve (optional)"></textarea>
+                <button id="submit-feedback">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
     
     <div class="disclaimer">
         <p><strong>Disclaimer:</strong> This interpretation is for informational purposes only and should not be considered legal advice. Please consult with a qualified attorney for specific legal guidance.</p>
     </div>
     
-    <a href="/" class="back-button">&#8592; Ask Another Question</a>
+    <div class="action-buttons">
+        <a href="/" class="back-button">&#8592; Ask Another Question</a>
+        <button class="share-button" onclick="shareResults()">📤 Share Results</button>
+    </div>
+
+    <script>
+        // Feedback functionality
+        const ratingButtons = document.querySelectorAll('.rating-btn');
+        const feedbackTextarea = document.querySelector('.feedback-textarea');
+        const submitFeedbackBtn = document.getElementById('submit-feedback');
+        let selectedRating = 0;
+
+        ratingButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                ratingButtons.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                selectedRating = parseInt(this.dataset.rating);
+                
+                // Show feedback textarea for low ratings
+                if (selectedRating <= 2) {
+                    feedbackTextarea.style.display = 'block';
+                } else {
+                    feedbackTextarea.style.display = 'none';
+                }
+            });
+        });
+
+        submitFeedbackBtn.addEventListener('click', function() {
+            const feedbackText = document.getElementById('feedback-text').value;
+            
+            fetch('/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    question: '{{ user_input }}',
+                    answer: '{{ answer }}',
+                    rating: selectedRating,
+                    feedback_text: feedbackText
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Thank you for your feedback!');
+                    document.querySelector('.feedback-form').innerHTML = '<p style="color: green;">✓ Feedback submitted successfully!</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting feedback');
+            });
+        });
+
+        function shareResults() {
+            const text = `Legal Rights Analysis:\n\nQuestion: {{ user_input }}\n\nDomain: {{ domain }}\n\nRights: {{ answer[:200] }}...\n\nGenerated by AI-Powered Legal Rights Interpreter`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Legal Rights Analysis',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Results copied to clipboard!');
+                });
+            }
+        }
+    </script>
 {% endblock %} 
