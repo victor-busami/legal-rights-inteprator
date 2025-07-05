@@ -1,0 +1,9 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <form method="post">
+        <label for="user_input">Enter your legal question or paste a legal document:</label><br>
+        <textarea id="user_input" name="user_input" rows="6" cols="60" required></textarea><br>
+        <button type="submit">Interpret My Rights</button>
+    </form>
+{% endblock %} 
